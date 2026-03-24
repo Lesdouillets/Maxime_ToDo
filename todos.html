@@ -498,24 +498,6 @@
       }
     }
 
-    // ── File System Access API ───────────────────────────────────────────────
-    async function connectFile() {
-      if (!window.showOpenFilePicker) {
-        alert("Your browser does not support the File System Access API.\nUse Chrome 86+ or Safari 15.2+.");
-        return;
-      }
-      try {
-        [fileHandle] = await window.showOpenFilePicker({
-          types: [{ description: "JSON file", accept: { "application/json": [".json"] } }],
-          multiple: false,
-        });
-        isConnected = true;
-        updateConnectionUI();
-        await saveHandle(fileHandle); // remember for next load
-      } catch (e) {
-        // user cancelled — stay disconnected
-      }
-    }
 
     // ── Persist state ────────────────────────────────────────────────────────
     // Requires an active connection. Saves to localStorage + todos.json.
