@@ -97,7 +97,7 @@
 
     /* ── Quadrant ── */
     .quadrant { background: var(--bg); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 12px; transition: outline .1s; min-height: 140px; }
-    .quadrant.drag-over { outline: 2.5px dashed var(--accent); outline-offset: -3px; }
+    .quadrant.drag-over { background: color-mix(in srgb, var(--bg) 60%, var(--accent) 8%); box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--accent) 40%, transparent); transition: background .15s, box-shadow .15s; }
     .q-header { display: flex; align-items: center; gap: 12px; }
     .q-icon { font-size: 1.6rem; flex-shrink: 0; }
     .q-label { font-size: 1.05rem; font-weight: 700; color: var(--accent); }
@@ -215,6 +215,12 @@
     .recently-done h3 { font-size: .78rem; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: 10px; }
     .done-list { display: flex; flex-direction: column; gap: 6px; }
     .done-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 9px 14px; display: flex; align-items: center; gap: 10px; }
+    @keyframes doneSlideIn {
+      0%   { opacity: 0; transform: translateY(-6px) scale(.98); background: #f0fdf4; }
+      60%  { background: #dcfce7; }
+      100% { opacity: 1; transform: translateY(0) scale(1);  background: #fff; }
+    }
+    .done-card.animate-in { animation: doneSlideIn .45s ease both; }
     .done-card-text { flex: 1; font-size: .82rem; color: var(--muted); text-decoration: line-through; }
     .done-quadrant-badge { font-size: .65rem; font-weight: 700; padding: 2px 7px; border-radius: 999px; color: #fff; flex-shrink: 0; }
     .done-date { font-size: .68rem; color: #9ca3af; white-space: nowrap; }
@@ -300,7 +306,7 @@
     
     <div class="quadrant" data-quadrant="IU"
          style="--accent:#ef4444;--bg:#fef2f2;--border:#fca5a5;"
-         ondragover="onDragOver(event)" ondrop="onDrop(event, 'IU')">
+         ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event, 'IU')">
       <div class="q-header">
         <span class="q-icon">🔥</span>
         <div>
@@ -313,7 +319,7 @@
     </div>
     <div class="quadrant" data-quadrant="IN"
          style="--accent:#3b82f6;--bg:#eff6ff;--border:#93c5fd;"
-         ondragover="onDragOver(event)" ondrop="onDrop(event, 'IN')">
+         ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event, 'IN')">
       <div class="q-header">
         <span class="q-icon">📅</span>
         <div>
@@ -326,7 +332,7 @@
     </div>
     <div class="quadrant" data-quadrant="NU"
          style="--accent:#f97316;--bg:#fff7ed;--border:#fdba74;"
-         ondragover="onDragOver(event)" ondrop="onDrop(event, 'NU')">
+         ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event, 'NU')">
       <div class="q-header">
         <span class="q-icon">🤝</span>
         <div>
@@ -339,7 +345,7 @@
     </div>
     <div class="quadrant" data-quadrant="NN"
          style="--accent:#6b7280;--bg:#f9fafb;--border:#d1d5db;"
-         ondragover="onDragOver(event)" ondrop="onDrop(event, 'NN')">
+         ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event, 'NN')">
       <div class="q-header">
         <span class="q-icon">🗑</span>
         <div>
@@ -690,22 +696,36 @@
     }
 
     // ── Drag & Drop ──────────────────────────────────────────────────────────
+    let _dragSourceQuadrant = null;
+
     function onDragStart(e, id) {
       if (!isConnected) { e.preventDefault(); return; }
       dragId = id;
       e.dataTransfer.effectAllowed = "move";
+      _dragSourceQuadrant = e.target.closest('.quadrant');
       setTimeout(() => e.target.classList.add("dragging"), 0);
     }
 
     function onDragEnd(e) {
       e.target.classList.remove("dragging");
       document.querySelectorAll(".quadrant").forEach(q => q.classList.remove("drag-over"));
+      _dragSourceQuadrant = null;
     }
 
     function onDragOver(e) {
       e.preventDefault();
       e.dataTransfer.dropEffect = "move";
-      e.currentTarget.classList.add("drag-over");
+      const q = e.currentTarget;
+      if (q === _dragSourceQuadrant) return;
+      document.querySelectorAll(".quadrant").forEach(el => { if (el !== q) el.classList.remove("drag-over"); });
+      q.classList.add("drag-over");
+    }
+
+    function onDragLeave(e) {
+      // only remove when leaving the quadrant itself (not a child element)
+      if (!e.currentTarget.contains(e.relatedTarget)) {
+        e.currentTarget.classList.remove("drag-over");
+      }
     }
 
     function onDrop(e, quadrant) {
@@ -730,6 +750,10 @@
       item.completedAt = new Date().toISOString();
       render();
       persistState();
+      requestAnimationFrame(() => {
+        const first = document.querySelector('#doneList .done-card');
+        if (first) first.classList.add('animate-in');
+      });
     }
 
     function showDeleteConfirm(id) {
