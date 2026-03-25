@@ -25,8 +25,8 @@
         "Maxime"
       ],
       "createdAt": "2026-03-25T12:55:33.044Z",
-      "done": false,
-      "completedAt": null
+      "done": true,
+      "completedAt": "2026-03-25T12:55:38.728Z"
     }
   ]
 }
