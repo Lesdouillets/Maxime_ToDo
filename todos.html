@@ -287,9 +287,7 @@
     }
     .task-modal-dl-clear:hover { color: #ef4444; }
 
-    /* ── Long press drag feedback ── */
-    .todo-card { cursor: pointer; }
-    .todo-card.drag-ready { cursor: grab; box-shadow: 0 6px 20px rgba(0,0,0,.14); transform: scale(1.015); transition: transform .12s, box-shadow .12s; }
+    .todo-card { cursor: grab; }
     .comment-area {
       width: 100%; font-family: var(--font); font-size: .82rem; color: var(--text);
       border: 1px solid #e5e7eb; border-radius: 6px; padding: 8px 12px;
@@ -851,9 +849,7 @@
           <div class="todo-card${isOverdue ? ' is-overdue' : ''}"
                draggable="true"
                data-id="${item.id}"
-               onpointerdown="onCardPointerDown('${item.id}', event)"
-               onpointerup="onCardPointerUp('${item.id}', event)"
-               onpointermove="onCardPointerMove(event)"
+               onclick="onCardClick('${item.id}', event)"
                ondragstart="onDragStart(event, '${item.id}')"
                ondragend="onDragEnd(event)">
             <div class="card-top">
@@ -938,52 +934,19 @@
       }).join("");
     }
 
-    // ── Long-press to drag ────────────────────────────────────────────────────
-    let _pointerDownTime = 0;
-    let _pointerDownId = null;
-    let _holdTimer = null;
-    let _didDrag = false;
-
-    function onCardPointerDown(id, e) {
-      if (e.target.closest('button, input, textarea, .delete-tag, .delete-confirm')) return;
-      e.currentTarget.setPointerCapture(e.pointerId);
-      _pointerDownTime = Date.now();
-      _pointerDownId = id;
-      _didDrag = false;
-      const card = e.currentTarget;
-      _holdTimer = setTimeout(() => {
-        card.classList.add('drag-ready');
-        _holdTimer = null;
-      }, 480);
-    }
-
-    function onCardPointerUp(id, e) {
-      clearTimeout(_holdTimer); _holdTimer = null;
-      const card = e.currentTarget;
-      card.classList.remove('drag-ready');
-      if (!_didDrag && _pointerDownId === id &&
-          !e.target.closest('button, input, textarea, .delete-tag, .delete-confirm')) {
-        openTaskModal(id);
-      }
-      _pointerDownId = null;
-    }
-
-    function onCardPointerMove(e) {
-      if (_holdTimer) {
-        const dx = e.movementX, dy = e.movementY;
-        if (Math.abs(dx) > 4 || Math.abs(dy) > 4) {
-          clearTimeout(_holdTimer); _holdTimer = null;
-        }
-      }
-    }
-
     // ── Drag & Drop ──────────────────────────────────────────────────────────
     let _dragSourceQuadrant = null;
+    let _dragging = false;
+
+    function onCardClick(id, e) {
+      if (_dragging) return;
+      if (e.target.closest('button, input, textarea, .delete-tag, .delete-confirm, .deadline-area')) return;
+      openTaskModal(id);
+    }
 
     function onDragStart(e, id) {
       if (!isConnected) { e.preventDefault(); return; }
-      if (Date.now() - _pointerDownTime < 500) { e.preventDefault(); return; }
-      _didDrag = true;
+      _dragging = true;
       dragId = id;
       e.dataTransfer.effectAllowed = "move";
       _dragSourceQuadrant = e.target.closest('.quadrant');
@@ -994,6 +957,7 @@
       e.target.classList.remove("dragging");
       document.querySelectorAll(".quadrant").forEach(q => q.classList.remove("drag-over"));
       _dragSourceQuadrant = null;
+      setTimeout(() => { _dragging = false; }, 0);
     }
 
     function onDragOver(e) {
