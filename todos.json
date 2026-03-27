@@ -7,7 +7,7 @@
       "important": true,
       "urgent": false,
       "dependency": null,
-      "deadline": null,
+      "deadline": "2026-04-03",
       "mentions": [
         "Damien F"
       ],
