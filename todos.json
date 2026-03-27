@@ -42,6 +42,19 @@
       "createdAt": "2026-03-27T19:03:32.356Z",
       "done": false,
       "completedAt": null
+    },
+    {
+      "id": "8dd921c0-a7de-49d6-b6ef-ce54acf7c82e",
+      "text": "Plannifier réunion avec Damien pour échanger sur la demande de Martin",
+      "quadrant": "IU",
+      "important": true,
+      "urgent": true,
+      "dependency": null,
+      "deadline": "2026-03-30",
+      "mentions": [],
+      "createdAt": "2026-03-27T19:33:48.925Z",
+      "done": false,
+      "completedAt": null
     }
   ]
 }
