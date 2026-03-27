@@ -244,6 +244,7 @@
       border: none; border-bottom: 2px solid transparent; outline: none;
       flex: 1; padding: 2px 0; background: transparent; color: var(--text);
       transition: border-color .15s;
+      resize: none; overflow: hidden; line-height: 1.4; min-height: 1.4em;
     }
     .task-modal-title-input:focus { border-bottom-color: #6366f1; }
     .task-modal-close { font-family: var(--font); font-size: 1.2rem; border: none; background: none; cursor: pointer; color: #9ca3af; padding: 0 2px; line-height: 1; flex-shrink: 0; }
@@ -550,7 +551,7 @@
   <div class="task-modal-overlay hidden" id="taskModalOverlay" onclick="closeTaskModal()">
     <div class="task-modal" onclick="event.stopPropagation()">
       <div class="task-modal-header">
-        <input class="task-modal-title-input" id="taskModalTitleInput" type="text" />
+        <textarea class="task-modal-title-input" id="taskModalTitleInput" rows="1" oninput="autoResizeTitle(this)"></textarea>
         <button class="task-modal-close" onclick="closeTaskModal()">×</button>
       </div>
       <div class="task-modal-meta" id="taskModalMeta"></div>
@@ -1033,7 +1034,9 @@
       const item = todos.find(t => t.id === id);
       if (!item) return;
       _taskModalId = id;
-      document.getElementById('taskModalTitleInput').value = item.text;
+      const titleEl = document.getElementById('taskModalTitleInput');
+      titleEl.value = item.text;
+      setTimeout(() => autoResizeTitle(titleEl), 0);
       const qMeta = QUADRANT_META[item.quadrant] || QUADRANT_META.NN;
       document.getElementById('taskModalMeta').innerHTML =
         `<span class="task-modal-badge" style="background:${qMeta.accent};">${qMeta.label}</span>
@@ -1151,6 +1154,11 @@
       const item = todos.find(t => t.id === _taskModalId); if (!item) return;
       item.comments = (item.comments || []).filter(c => c.id !== cid);
       persistState(); render(); renderModalComments(item);
+    }
+
+    function autoResizeTitle(el) {
+      el.style.height = 'auto';
+      el.style.height = el.scrollHeight + 'px';
     }
 
     function escHtml(s) {
