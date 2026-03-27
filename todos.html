@@ -535,8 +535,24 @@
         updateConnectionUI();
       }
 
-      // 2. Always fetch the latest todos.json from GitHub (public raw, no auth)
+      // 2. Fetch latest todos.json — via API (gets fresh SHA) if token exists, else via raw URL
       try {
+        if (token) {
+          // API fetch keeps SHA in sync → saves won't fail with stale SHA
+          const apiUrl = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${GH_FILE}?ref=${GH_BRANCH}&t=${Date.now()}`;
+          const r = await fetch(apiUrl, { headers: { Authorization: 'token ' + token } });
+          if (r.ok) {
+            const meta = await r.json();
+            localStorage.setItem(LS_SHA_KEY, meta.sha);
+            const data = JSON.parse(atob(meta.content.replace(/\n/g, '')));
+            todos = data.todos || [];
+            localStorage.setItem(LS_KEY, JSON.stringify(todos));
+            localStorage.setItem(LS_GEN_KEY, new Date().toISOString());
+            render();
+            return;
+          }
+        }
+        // Fallback: raw URL (no auth, no SHA update)
         const rawUrl = `https://raw.githubusercontent.com/${GH_OWNER}/${GH_REPO}/${GH_BRANCH}/${GH_FILE}?t=${Date.now()}`;
         const r = await fetch(rawUrl);
         if (r.ok) {
