@@ -614,7 +614,7 @@
     @media (max-width: 680px) {
       :root { --bar-h: 68px; }
       /* board mode body padding — capture mode overrides this via body:not(.mobile-board) */
-      body.mobile-board { padding: 16px 12px calc(68px + 20px); }
+      body.mobile-board { padding: 16px 12px calc(68px + env(safe-area-inset-bottom, 0px) + 16px); }
 
       .page-header { margin-bottom: 12px; gap: 8px; }
       .page-title { font-size: 1.2rem; }
@@ -1047,11 +1047,18 @@
 
       /* Bottom nav */
       #mobileNav {
-        display: flex; position: fixed; bottom: 0; left: 0; right: 0;
-        height: 68px; z-index: 300;
-        background: var(--bar-bg); backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
+        display: flex;
+        position: fixed; bottom: 0; left: 0; right: 0;
+        height: 68px; z-index: 9999;
+        background: var(--bar-bg);
         border-top: 1px solid var(--border);
+        /* Force own GPU compositing layer — prevents nav from scrolling
+           with page on Chrome/Safari mobile dynamic viewport */
+        transform: translateZ(0);
+        -webkit-transform: translateZ(0);
+        will-change: transform;
+        /* Safe area for iPhone home bar */
+        padding-bottom: env(safe-area-inset-bottom, 0);
       }
       .mnav-btn {
         flex: 1; display: flex; flex-direction: column; align-items: center;
@@ -1773,7 +1780,7 @@
         dtList.innerHTML = dueToday.map(item => {
           const meta = QUADRANT_META[item.quadrant] || QUADRANT_META.NN;
           const depHtml = item.dependency ? `<span style="opacity:.75;font-size:.7rem;">⏳ ${item.dependency}</span>` : '';
-          return `<div class="due-today-card" style="background:${meta.accent};">
+          return `<div class="due-today-card" style="background:${meta.accent};cursor:pointer;" onclick="openTaskModal('${item.id}')">
             <div class="due-text">
               <div>${item.text}</div>
               ${depHtml}
