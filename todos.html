@@ -1780,7 +1780,7 @@
         dtList.innerHTML = dueToday.map(item => {
           const meta = QUADRANT_META[item.quadrant] || QUADRANT_META.NN;
           const depHtml = item.dependency ? `<span style="opacity:.75;font-size:.7rem;">⏳ ${item.dependency}</span>` : '';
-          return `<div class="due-today-card" style="background:${meta.accent};">
+          return `<div class="due-today-card" style="background:${meta.accent};cursor:pointer;" onclick="openTaskModal('${item.id}')">
             <div class="due-text">
               <div>${item.text}</div>
               ${depHtml}
