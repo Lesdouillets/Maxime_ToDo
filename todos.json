@@ -136,8 +136,8 @@
       "deadline": "2026-03-31",
       "mentions": [],
       "createdAt": "2026-03-30T15:43:18.056Z",
-      "done": false,
-      "completedAt": null,
+      "done": true,
+      "completedAt": "2026-03-31T09:20:36.556Z",
       "links": [
         {
           "id": "5466c3d6-b89b-4ab3-8bc6-7fe45ad19a94",
