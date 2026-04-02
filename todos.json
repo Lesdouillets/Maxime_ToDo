@@ -169,6 +169,18 @@
       "createdAt": "2026-04-02T10:20:15.220Z",
       "done": false,
       "completedAt": null
+    },
+    {
+      "id": "3d8cfff4-c0ed-44de-a8ff-2ae3917fab29",
+      "text": "Mettre lien Figma et visuels dans ticket légal de Audrey",
+      "quadrant": "IN",
+      "important": true,
+      "urgent": false,
+      "deadline": null,
+      "mentions": [],
+      "createdAt": "2026-04-02T10:21:02.207Z",
+      "done": false,
+      "completedAt": null
     }
   ]
 }
