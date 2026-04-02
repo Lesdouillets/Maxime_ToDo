@@ -164,7 +164,7 @@
       "quadrant": "IN",
       "important": true,
       "urgent": false,
-      "deadline": null,
+      "deadline": "2026-04-10",
       "mentions": [],
       "createdAt": "2026-04-02T10:20:15.220Z",
       "done": false,
